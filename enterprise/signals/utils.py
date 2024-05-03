@@ -880,7 +880,20 @@ def normed_tm_basis(Mmat, norm=None):
 
 @function
 def svd_tm_basis(Mmat):
+
+    Mmat = normed_tm_basis(Mmat)[0]   # renormalize 
     u, s, v = np.linalg.svd(Mmat, full_matrices=False)
+    
+    # Removing degeneracies 
+    if np.any(s<10**(-10)): # looking for any very small single values
+        small_s_idx = np.where(abs(s)<10**(-10))[0]
+        
+        # s formatted largest to smallest
+        S = s[:np.min(small_s_idx)]  # remove the very small single values
+        U = u[:,:np.min(small_s_idx)]  # remove earliest degenerate column and all columns after 
+        
+        return U, np.ones_like(S)
+
     return u, np.ones_like(s)
 
 
